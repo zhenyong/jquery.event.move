@@ -180,7 +180,7 @@
 	}
 
 	function changedTouch(e, event) {
-		var touch = identifiedTouch(e.changedTouches, event.identifier);
+		var touch = identifiedTouch(e.originalEvent.changedTouches, event.identifier);
 
 		// This isn't the touch you're looking for.
 		if (!touch) { return; }
@@ -233,7 +233,7 @@
 		// Don't get in the way of interaction with form elements.
 		if (ignoreTags[ e.target.tagName.toLowerCase() ]) { return; }
 
-		touch = e.changedTouches[0];
+		touch = e.originalEvent.changedTouches[0];
 		
 		// iOS live updates the touch objects whereas Android gives us copies.
 		// That means we can't trust the touchstart object to stay the same,
@@ -264,7 +264,7 @@
 
 	function touchend(e) {
 		var template = e.data,
-		    touch = identifiedTouch(e.changedTouches, template.identifier);
+		    touch = identifiedTouch(e.originalEvent.changedTouches, template.identifier);
 
 		if (!touch) { return; }
 
@@ -303,7 +303,7 @@
 		var node = template.target,
 		    touches, time;
 
-		touches = e.targetTouches;
+		touches = e.originalEvent && e.originalEvent.targetTouches;
 		time = e.timeStamp - template.timeStamp;
 
 		// Create a movestart object with some special properties that
@@ -380,7 +380,7 @@
 		// Stop the interface from gesturing
 		e.preventDefault();
 
-		event.targetTouches = e.targetTouches;
+		event.targetTouches = e.originalEvent && e.originalEvent.targetTouches;
 		e.data.touch = touch;
 		e.data.timeStamp = e.timeStamp;
 		timer.kick();
@@ -389,7 +389,7 @@
 	function activeTouchend(e) {
 		var event = e.data.event,
 		    timer = e.data.timer,
-		    touch = identifiedTouch(e.changedTouches, event.identifier);
+		    touch = identifiedTouch(e.originalEvent.changedTouches, event.identifier);
 
 		// This isn't the touch you're looking for.
 		if (!touch) { return; }
@@ -514,7 +514,7 @@
 				velocityY: e.velocityY,
 				timeStamp: e.timeStamp,
 				identifier: e.identifier,
-				targetTouches: e.targetTouches,
+				targetTouches: e.originalEvent && e.originalEvent.targetTouches,
 				finger: e.finger
 			};
 
@@ -573,6 +573,8 @@
 	// object, if they are not already listed. But only do the ones we
 	// really need. IE7/8 do not have Array#indexOf(), but nor do they
 	// have touch events, so let's assume we can ignore them.
+	// >>> https://github.com/jquery/api.jquery.com/issues/405
+	/*
 	if (typeof Array.prototype.indexOf === 'function') {
 		(function(jQuery, undefined){
 			var props = ["changedTouches", "targetTouches"],
@@ -585,4 +587,6 @@
 			}
 		})(jQuery);
 	};
+	*/
+	//<<<https://github.com/jquery/api.jquery.com/issues/405
 });
